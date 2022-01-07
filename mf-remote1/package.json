@@ -4,14 +4,15 @@
   "scripts": {
     "dev": "next dev -p 4010",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 4010",
     "lint": "next lint"
   },
   "dependencies": {
-    "@module-federation/nextjs-mf": "^2.3.1",
+    "@module-federation/nextjs-mf": "1.1.2",
     "next": "12.0.7",
     "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "react-dom": "17.0.2",
+    "webpack": "^5.65.0"
   },
   "devDependencies": {
     "@types/node": "17.0.8",

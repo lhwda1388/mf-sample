@@ -1,43 +1,46 @@
 /** @type {import('next').NextConfig} */
-const { withFederatedSidecar } = require('@module-federation/nextjs-mf');
+const {
+  withModuleFederation,
+  MergeRuntime,
+} = require('@module-federation/nextjs-mf');
+const path = require('path');
+const deps = require('./package.json').dependencies;
+
+const ssrRemoteEntry =
+  process.env.NODE_ENV === 'production'
+    ? path.join(
+        '<remotes-path>/mf-remote1/.next/server/chunks/static/runtime/remoteEntry.js',
+      )
+    : path.resolve(
+        __dirname,
+        '../mf-remote1/.next/server/static/runtime/remoteEntry.js',
+      );
 
 module.exports = {
   reactStrictMode: true,
+  webpack5: true,
   webpack(config, options) {
     const { isServer, webpack } = options;
+    console.log(ssrRemoteEntry);
+    const mfConf = {
+      mergeRuntime: true,
+      name: 'host',
+      library: { type: config.output.libraryTarget, name: 'host' },
+      filename: 'static/runtime/remoteEntry.js',
+      remotes: {
+        remote1: isServer ? ssrRemoteEntry : 'remote1', // for client, treat it as a global
+      },
+      shared: [],
+    };
 
-    config.module.rules.push({
-      test: /_app.js/,
-      loader: '@module-federation/nextjs-mf/lib/federation-loader.js',
-    });
+    withModuleFederation(config, options, mfConf);
 
-    if (isServer) {
-      // ignore it on SSR, realistically you probably wont be SSRing Fmodules, without paid support from @ScriptedAlchemy
-      Object.assign(config.resolve.alias, {
-        host: false,
-        remote1: false,
-      });
-    } else {
-      config.plugins.push(
-        new webpack.container.ModuleFederationPlugin({
-          name: 'host',
-          remoteType: 'var',
-          remotes: {
-            remote1: 'remote1@http://localhost:4010/remoteEntry.js',
-          },
-          shared: {
-            '@module-federation/nextjs-mf/lib/noop': {
-              eager: false,
-            },
-            react: {
-              singleton: true,
-              eager: true,
-              requiredVersion: false,
-            },
-          },
-        }),
-      );
+    config.plugins.push(new MergeRuntime());
+
+    if (!options.isServer) {
+      config.output.publicPath = 'http://localhost:4000/_next/';
     }
+
     return config;
   },
 };
