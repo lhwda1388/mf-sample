@@ -2,6 +2,7 @@ const {
   withModuleFederation,
   MergeRuntime,
 } = require('@module-federation/nextjs-mf');
+const deps = require('./package.json').dependencies;
 
 /** @type {import('next').NextConfig} */
 module.exports = {
@@ -10,15 +11,22 @@ module.exports = {
   webpack(config, options) {
     const mfConf = {
       mergeRuntime: true,
-      name: 'remote1',
-      library: { type: config.output.libraryTarget, name: 'remote1' },
+      name: 'header',
+      library: { type: config.output.libraryTarget, name: 'header' },
       filename: 'static/runtime/remoteEntry.js',
       remotes: {},
       exposes: {
-        './Remote1': './components/Remote1',
-        './Remote11': './components/Remote11',
+        './Header': './components/Header',
       },
-      shared: [],
+      shared: {
+        'styled-components': {
+          singleton: true,
+        },
+        react: { singleton: true },
+        'react-dom': {
+          singleton: true,
+        },
+      },
     };
     // Configures ModuleFederation and other Webpack properties
     withModuleFederation(config, options, mfConf);

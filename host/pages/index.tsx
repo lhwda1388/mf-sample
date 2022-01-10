@@ -3,29 +3,13 @@ import styles from '../styles/Home.module.css';
 import dynamic from 'next/dynamic';
 import React from 'react';
 
-const Remote1 = dynamic(
+const Header = dynamic(
   () => {
     // @ts-ignore
-    return import('remote1/Remote1');
+    return import('header/Header');
   },
   {
-    ssr: true,
-    loading: ({ error }) => {
-      if (error) {
-        return <div>{error.message}</div>;
-      }
-      return <div>...loading</div>;
-    },
-  },
-);
-// @ts-ignore
-const Remote11 = dynamic(
-  () => {
-    // @ts-ignore
-    return import('remote1/Remote11');
-  },
-  {
-    ssr: true,
+    ssr: false,
     loading: ({ error }) => {
       if (error) {
         return <div>{error.message}</div>;
@@ -38,9 +22,7 @@ const Remote11 = dynamic(
 const Home: NextPage = () => {
   return (
     <div className={styles.container}>
-      <Remote1 />
-      <Remote11 />
-      fef
+      <Header />
     </div>
   );
 };
